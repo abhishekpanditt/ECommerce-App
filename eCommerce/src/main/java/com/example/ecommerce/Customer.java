@@ -6,7 +6,7 @@ public class Customer {
     String name;
     String email;
 
-    public Customer(int id, String name, String email) {
+    public Customer(int id, String name, String email) {                            //creating customer class
         this.id = id;
         this.name = name;
         this.email = email;
