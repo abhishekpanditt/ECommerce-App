@@ -8,9 +8,9 @@ import javafx.scene.layout.Pane;
 
 public class Order {
 
-      TableView<Product> orderTable;
+      static TableView<Product> orderTable;                                         //create order table
 
-    public  boolean placeOrder(Customer customer, Product product){
+    public  boolean placeOrder(Customer customer, Product product){                  //to check customer and product in database
         try {
             String placeOrder = "INSERT INTO orders (customer_id, product_id, status) VALUES("+ customer.getId() +","+ product.getId() +",'Ordered')";
             DatabaseConnection dbConn = new DatabaseConnection();
@@ -22,7 +22,7 @@ public class Order {
         return false;
     }
 
-    public int placeMultipleOrderProducts(ObservableList<Product> productObservableList, Customer customer){
+    public int placeMultipleOrderProducts(ObservableList<Product> productObservableList, Customer customer){     //customer places many orders
         int count = 0;
         for(Product product : productObservableList){
             if(placeOrder(customer, product))
@@ -31,12 +31,12 @@ public class Order {
         return count;
     }
 
-    public Pane getOrders(){
-        ObservableList<Product> productList = Product.getAllProducts();
-        return createTableFromList(productList);
+    public Pane getAllProducts(){
+        ObservableList<Product> productsList = Product.getAllProducts();
+        return createTableFromList(productsList);
     }
 
-    public  Pane createTableFromList(ObservableList<Product> orderList) {
+    public static Pane createTableFromList(ObservableList<Product> orderList) {             //create table with product id, name, price
         TableColumn id = new TableColumn("Id");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
 
@@ -61,8 +61,8 @@ public class Order {
         return tablePane;
     }
 
-    public  Pane getOrders(Customer customer){
-
+    public static Pane getOrders(Customer customer){
+        if (customer==null) System.out.println("null");
         String order = "SELECT orders.oid, products.name, products.price FROM orders INNER JOIN products ON orders.product_id = products.pid WHERE customer_id = " + customer.getId();
         ObservableList<Product> orderList = Product.getProducts(order);
 
