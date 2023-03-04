@@ -26,17 +26,17 @@ public class Product {
         return price.get();
     }
 
-    public Product(int id, String name, Double price){
+    public Product(int id, String name, Double price){                   //class created with product id, name, price
         this.id = new SimpleIntegerProperty(id);
         this.name = new SimpleStringProperty(name);
         this.price = new SimpleDoubleProperty(price);
     }
 
-    public static ObservableList<Product>getAllProducts(){
+    public static ObservableList<Product>getAllProducts(){               //get whole product list
         String allProductList = "SELECT * FROM products";
         return getProducts(allProductList);
     }
-    public static ObservableList<Product> getProducts(String query){
+    public static ObservableList<Product> getProducts(String query){     //get products that are selected by customer
         DatabaseConnection dbConn = new DatabaseConnection();
         ResultSet rs = dbConn.getQueryTable(query);
         ObservableList<Product> result = FXCollections.observableArrayList();
