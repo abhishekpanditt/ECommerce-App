@@ -17,47 +17,62 @@ public class ECommerce extends Application {
 
     //Login login = new Login();
     private final int width = 500, height = 400, headerLine = 50;
-    ProductList productList = new ProductList();
     Pane bodyPane;
+    Pane root = new Pane();
     GridPane footerBar;
-
-    Order order = new Order();
-
     ObservableList<Product> cartItemList = FXCollections.observableArrayList();
 
+    //buttons created
     Button signInButton = new Button("Sign In");
     Button placeOrderButton = new Button("Place order");
-    Label welcomeLabel = new Label("Welcome customer ");
+    Label welcomeLabel = new Label("Welcome customer");
+    Button searchButton = new Button("Search");
+    Button cartButton = new Button("Cart");
+    Button ordersButton = new Button("Orders");
+    Button buyNowButton = new Button("Buy now");
+    Button addToCartButton = new Button("Add to cart");
+    Button signOutButton = new Button("Sign Out");
+    Button closeButton = new Button("Exit");
     Customer loggedInCustomer = null;
+    Order order = new Order();
+    ProductList productList = new ProductList();
 
-    private void addItemsToCart(Product product){
+    private void showDialogue(String message){                                          //for showing dialogue box
+        Dialog<String> dialog = new Dialog<String>();
+        //Setting the title
+        dialog.setTitle("Order status");
+        ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+        //Setting the content of the dialog
+        dialog.setContentText(message);
+        //Adding buttons to the dialog pane
+        dialog.getDialogPane().getButtonTypes().add(type);
 
-        if(cartItemList.contains(product)){
-            return;
-        }
-        else{
-            cartItemList.add(product);
-        }
-        System.out.println("Products in cart " + cartItemList.stream().count());
+        dialog.showAndWait();
+
     }
-    private GridPane headerBar(){
+
+    private void addItemsToCart(Product product){                                       //adding items to cart
+
+        if (!cartItemList.contains(product)) {
+            cartItemList.add(product);
+            showDialogue(product.getName() + " is added to the cart");
+        }
+    }
+    private GridPane headerBar(){                                                       //headerbar
         GridPane header = new GridPane();
 
         //creating searchbar and searchButton
         TextField searchBar = new TextField();
-        Button searchButton = new Button("Search");
-        Button cartButton = new Button("Cart");
-        Button ordersButton = new Button("Orders");
-
-        ordersButton.setOnAction(new EventHandler<ActionEvent>() {
+        searchBar.setPromptText("Search an item");
+        ordersButton.setOnAction(new EventHandler<ActionEvent>() {                       //order button
             @Override
             public void handle(ActionEvent actionEvent) {
                 bodyPane.getChildren().clear();
-                bodyPane.getChildren().add(order.getOrders());
+                bodyPane.getChildren().add(order.getOrders(loggedInCustomer));
             }
         });
 
-        searchButton.setOnAction(new EventHandler<ActionEvent>() {
+        searchButton.setOnAction(new EventHandler<ActionEvent>() {                      //search button
             @Override
             public void handle(ActionEvent actionEvent) {
                 bodyPane.getChildren().clear();
@@ -65,21 +80,22 @@ public class ECommerce extends Application {
             }
         });
 
-        cartButton.setOnAction(new EventHandler<ActionEvent>() {
+        cartButton.setOnAction(new EventHandler<ActionEvent>() {                        //Add to cart button
             @Override
             public void handle(ActionEvent actionEvent) {
                 bodyPane.getChildren().clear();
-                bodyPane.getChildren().add(productList.productsInCart(cartItemList));
+                bodyPane.getChildren().add(productList.productsInCart(cartItemList));   // only searched products to show
             }
         });
 
-        signInButton.setOnAction(new EventHandler<ActionEvent>() {
+        signInButton.setOnAction(new EventHandler<ActionEvent>() {                      //sign in button
             @Override
             public void handle(ActionEvent actionEvent) {
                 bodyPane.getChildren().clear();
                 bodyPane.getChildren().add(loginPage());
             }
         });
+
         //placing searchbar and searchButton
         header.setHgap(10);
 
@@ -92,34 +108,33 @@ public class ECommerce extends Application {
 
         return header;
     }
-
-    private GridPane loginPage(){
+    private GridPane loginPage(){                                                       //login page
 
         //creating components
         Label userLabel = new Label("User name");
         Label passLabel = new Label("Password");
         TextField userName = new TextField();
-    //    userName.setText("rohan@gmail.com");
+        //    userName.setText("rohan@gmail.com");
         userName.setPromptText("Enter User name");
         PasswordField password = new PasswordField();
-    //    password.setText("abc");
+        //    password.setText("abc");
         password.setPromptText("Enter password");
         Button loginButton = new Button("login");
         Label messageLabel = new Label("Login - Message");
 
-        loginButton.setOnAction(new EventHandler<ActionEvent>() {
+        loginButton.setOnAction(new EventHandler<ActionEvent>() {                       //login button
             @Override
             public void handle(ActionEvent actionEvent) {
                 String user = userName.getText();
                 String pass = password.getText();
                 loggedInCustomer = Login.customerLogin(user, pass);
 
-                if(loggedInCustomer != null){
+                if(loggedInCustomer != null){                                           //if correct credentials entered
                     messageLabel.setText("Login successful!");
                     welcomeLabel.setText("Welcome " + loggedInCustomer.getName());
                 }
                 else{
-                    messageLabel.setText("Login failed!");
+                    messageLabel.setText("Login failed!");                              //if wrong credentials entered
                 }
             }
         });
@@ -140,43 +155,27 @@ public class ECommerce extends Application {
         return loginPane;
     }
 
-    private void showDialogue(String message){
-        Dialog<String> dialog = new Dialog<String>();
-        //Setting the title
-        dialog.setTitle("Order status");
-        ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-        //Setting the content of the dialog
-        dialog.setContentText(message);
-        //Adding buttons to the dialog pane
-        dialog.getDialogPane().getButtonTypes().add(type);
-
-            dialog.showAndWait();
-
-    }
-
-    private GridPane footerBar(){
-        Button buyNowButton = new Button("Buy now");
-        Button addToCartButton = new Button("Add to cart");
-        buyNowButton.setOnAction(new EventHandler<ActionEvent>() {
+    private GridPane footerBar(){                                                       //footer bar
+        buyNowButton.setOnAction(new EventHandler<ActionEvent>() {                      //Buy Now button
             @Override
             public void handle(ActionEvent actionEvent) {
                 Product product = productList.getSelectedProduct();
                 boolean orderStatus = false;
 
-                if(product != null && loggedInCustomer != null){
+                if(product != null && loggedInCustomer != null){                        //if customer signed in and product present in cart
                     orderStatus = order.placeOrder(loggedInCustomer, product);
                 }
 
                 if(orderStatus == true){
                     showDialogue("Order successful");
                 }
-                else{
-
+                if(loggedInCustomer == null){
+                    showDialogue("Order can't be placed. Please Sign In!!");
                 }
             }
         });
 
-        addToCartButton.setOnAction(new EventHandler<ActionEvent>() {
+        addToCartButton.setOnAction(new EventHandler<ActionEvent>() {                       //Add to cart button
             @Override
             public void handle(ActionEvent actionEvent) {
                 Product product = productList.getSelectedProduct();
@@ -184,35 +183,50 @@ public class ECommerce extends Application {
             }
         });
 
-        placeOrderButton.setOnAction(new EventHandler<ActionEvent>() {
+        placeOrderButton.setOnAction(new EventHandler<ActionEvent>() {                      //Place order button
             @Override
             public void handle(ActionEvent actionEvent) {
                 int orderCount = 0;
 
                 if(!cartItemList.isEmpty() && loggedInCustomer != null){
                     orderCount = order.placeMultipleOrderProducts(cartItemList, loggedInCustomer);
+                    cartItemList.clear();
                 }
 
                 if(orderCount > 0){
-                    showDialogue("Order for " + orderCount + " products placed successfully");
+                    showDialogue("Order for " + orderCount + " product(s) placed successfully!");
                 }
                 else{
-
+                    showDialogue("Sorry, orders can't be placed right now! Try again!!");
                 }
             }
         });
 
+        signOutButton.setOnAction(new EventHandler<ActionEvent>() {                     // sign out button
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                loggedInCustomer = null;
+                welcomeLabel.setText("Welcome customer");
+                bodyPane.getChildren().clear();
+                bodyPane.getChildren().add(loginPage());
+
+            }
+        });
+
+        //placing components
         GridPane footer = new GridPane();
         footer.setHgap(10);
-        footer.setTranslateY(headerLine + height);
+        footer.setTranslateY(headerLine + height + 10);
+        footer.setTranslateX(10);
         footer.add(buyNowButton, 0, 0);
         footer.add(addToCartButton, 1, 0);
         footer.add(placeOrderButton, 2, 0);
+        footer.add(signOutButton, 20,0);
+
         return footer;
     }
 
     private Pane createContent(){
-        Pane root = new Pane();
         root.setPrefSize(width, height + 2*headerLine);
 
         bodyPane = new Pane();
@@ -236,13 +250,13 @@ public class ECommerce extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         //FXMLLoader fxmlLoader = new FXMLLoader(ECommerce.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(createContent());
-        stage.setTitle("ECommerce");
+        Scene scene = new Scene(createContent());                                       //create scene
+        stage.setTitle("ECommerce App");
         stage.setScene(scene);
         stage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {                                            //launch app
         launch();
     }
 }
