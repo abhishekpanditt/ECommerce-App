@@ -8,14 +8,19 @@ import javafx.scene.layout.Pane;
 
 public class ProductList {
 
-    public TableView<Product> productTable;
+    public TableView<Product> productTable;                                         //create table of products
 
-    public Pane getAllProducts() {
+    public Pane getAllProducts() {                                                  //get all products in an observable list
         ObservableList<Product> productList = Product.getAllProducts();
         return createTableFromList(productList);
     }
 
-    public Pane createTableFromList(ObservableList<Product> productList) {
+    public Pane productsInCart(ObservableList<Product> productList){                //get products added in cart (obs list)
+
+        return createTableFromList(productList);
+    }
+
+    public Pane createTableFromList(ObservableList<Product> productList) {          //create table with product id, name, price
         TableColumn id = new TableColumn("Id");
         id.setCellValueFactory(new PropertyValueFactory<>("id"));
 
@@ -38,10 +43,6 @@ public class ProductList {
         tablePane.getChildren().add(productTable);
 
         return tablePane;
-    }
-
-    public Pane productsInCart(ObservableList<Product> productList){
-        return createTableFromList(productList);
     }
 
     public Product getSelectedProduct(){
